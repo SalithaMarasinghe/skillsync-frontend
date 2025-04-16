@@ -1,26 +1,70 @@
-# SkillSync
-SkillSync is the go-to platform for individuals eager to share their expertise and acquire new skills in a dynamic and interactive environment. Whether you're passionate about coding, photography, cooking, or DIY crafts, SkillSync fosters a vibrant community where learning is both engaging and rewarding.
+# Getting Started with Create React App
 
-What Makes SkillSync Unique?
-SkillSync blends the best aspects of social engagement with structured learning, offering an experience akin to platforms like Udemy [1] and Skillshare [2]. Unlike traditional elearning sites, SkillSync thrives on user interaction, enabling skill enthusiasts to showcase their progress, exchange insights, and build meaningful connections.
-Key Features:
-✓ Skill-Sharing Posts: Upload up to three photos or short videos per post with
-detailed descriptions to highlight your expertise.
-✓ Learning Plans: Create and share structured learning plans with resources,
-milestones, and timelines.
-✓ Community Engagement: Like, comment, and follow others to foster collaboration
-and interaction. Users can edit or delete their comments while post owners can
-manage discussions on their content.
-✓ Personalized Profiles: Showcase your skills and learning journey through a
-dedicated public profile.
-✓ Real-Time Notifications: Stay updated on likes, comments, and interactions.
-✓ Seamless Authentication: Effortless login with OAuth 2.0 for a secure and userfriendly experience.
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-A Robust Technological Backbone
-SkillSync ensures a seamless and responsive user experience with a modern tech stack:
- Frontend: React.js for an interactive and dynamic interface.
- Backend: Powered by spring boot, ensuring efficient RESTful API communication.
- Database & Security: Firebase for Database and Firestore for Storage (By Google)
- 
-SkillSync is more than just a platform—it’s a thriving community of learners and creators
-dedicated to continuous growth. 
+## Available Scripts
+
+In the project directory, you can run:
+
+### `npm start`
+
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
+
+### `npm test`
+
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+
+### `npm run build`
+
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
+
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+### `npm run eject`
+
+**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+
+If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+
+You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+
+## Learn More
+
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+
+To learn React, check out the [React documentation](https://reactjs.org/).
+
+### Code Splitting
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+
+### Analyzing the Bundle Size
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+
+### Making a Progressive Web App
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+
+### Advanced Configuration
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+
+### Deployment
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+
+### `npm run build` fails to minify
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
