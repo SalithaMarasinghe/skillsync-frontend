@@ -10,7 +10,7 @@ import BarChartIcon from "@mui/icons-material/BarChart";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { FavoriteOutlined } from "@mui/icons-material";
 
-const TweetCard = () => {
+const PostCard = () => {
   const navigate = useNavigate();
 
   // Use useState for anchorEl without TypeScript type annotations
@@ -169,4 +169,4 @@ verification-card-v2@3x.8ebee01a.png"
   );
 };
 
-export default TweetCard;
+export default PostCard;

@@ -7,7 +7,7 @@ import ImageIcon from '@mui/icons-material/Image';
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import TagFacesIcon from '@mui/icons-material/TagFaces';
 import { Padding } from "@mui/icons-material";
-import TweetCard from "./TweetCard";
+import PostCard from "/PostCard";
 
 const validationSchema = Yup.object().shape({
   content: Yup.string().required("Post text is required"),
@@ -112,7 +112,7 @@ const handleSelectImage=(event)=>{
       </section>
 
       <section >
-        {[1,1,1,1,1].map((item)=> <TweetCard/>)}
+        {[1,1,1,1,1].map((item)=> <PostCard/>)}
       </section>
     </div>
   );
