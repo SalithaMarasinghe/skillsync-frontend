@@ -7,7 +7,7 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 
-const Navigation = ({ setCurrentSection, currentSection }) => {
+const Navigation = ({ setCurrentSection, currentSection, onLogout }) => {
   // Use useState for anchorEl without TypeScript type annotations
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -23,7 +23,7 @@ const Navigation = ({ setCurrentSection, currentSection }) => {
   };
 
   const handleLogout = () => {
-    console.log("Logout clicked");
+    if (onLogout) onLogout();
     handleClose();
   };
 

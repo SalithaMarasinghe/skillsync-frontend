@@ -9,16 +9,43 @@ import MessageSection from "./components/MessageSection/MessageSection";
 import ExploreSection from "./components/ExploreSection/ExploreSection";
 import LearningProgress from "./components/LearningProgressSection/LearningProgress";
 import AIChatbotSection from "./components/AIChatbotSection/AIChatbotSection";
+import LoginPage from "./components/Auth/LoginPage";
+import SignupPage from "./components/Auth/SignupPage";
 
 function App() {
   // Track the current section to dynamically change the view
   const [currentSection, setCurrentSection] = useState("home");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showSignup, setShowSignup] = useState(true);
+
+  const handleLogin = (values) => {
+    // For demo: accept any gmail/password
+    setIsAuthenticated(true);
+  };
+
+  const handleSignup = (values) => {
+    setIsAuthenticated(true);
+    setShowSignup(false);
+  };
+
+  const handleGoogleAuth = () => {
+    // For demo: just authenticate
+    setIsAuthenticated(true);
+    setShowSignup(false);
+  };
+
+  if (!isAuthenticated) {
+    if (showSignup) {
+      return <SignupPage onSignup={handleSignup} onGoogleAuth={handleGoogleAuth} />;
+    }
+    return <LoginPage onLogin={handleLogin} onGoogleAuth={handleGoogleAuth} onShowSignup={() => setShowSignup(true)} />;
+  }
 
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Left side: Navigation area */}
       <div className="w-1/4 p-5">
-        <Navigation setCurrentSection={setCurrentSection} currentSection={currentSection} />
+        <Navigation setCurrentSection={setCurrentSection} currentSection={currentSection} onLogout={() => setIsAuthenticated(false)} />
       </div>
 
       {/* Center: Content area */}

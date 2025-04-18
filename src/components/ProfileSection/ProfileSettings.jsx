@@ -10,7 +10,7 @@ const validationSchema = Yup.object().shape({
   photo: Yup.string().url("Must be a valid URL")
 });
 
-const ProfileSettings = ({ initialProfile, onSave, onCancel }) => {
+const ProfileSettings = ({ initialProfile, onSave, onCancel, onDelete }) => {
   const formik = useFormik({
     initialValues: initialProfile,
     validationSchema,
@@ -106,6 +106,13 @@ const ProfileSettings = ({ initialProfile, onSave, onCancel }) => {
             onClick={onCancel}
           >
             Cancel
+          </button>
+          <button
+            type="button"
+            className="bg-red-500 text-white px-4 py-2 rounded font-semibold ml-auto"
+            onClick={onDelete}
+          >
+            Delete Profile
           </button>
         </div>
       </form>

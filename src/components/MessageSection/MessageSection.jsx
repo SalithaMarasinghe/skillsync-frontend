@@ -27,14 +27,37 @@ const mockConversations = [
 
 const MessageSection = () => {
   const [selected, setSelected] = useState(0);
-  const conversation = mockConversations[selected];
+  const [input, setInput] = useState("");
+  const [mockConversationsState, setMockConversations] = useState(mockConversations);
+  const conversation = mockConversationsState[selected];
+
+  const handleSend = (e) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+    setMockConversations((prev) =>
+      prev.map((conv, idx) =>
+        idx === selected
+          ? {
+              ...conv,
+              messages: [
+                ...conv.messages,
+                { text: input, fromMe: true, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) },
+              ],
+              lastMessage: input,
+              lastTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }
+          : conv
+      )
+    );
+    setInput("");
+  };
 
   return (
     <div className="w-full h-full bg-white rounded-lg shadow-md mt-0 border border-gray-200 flex min-h-[500px] max-h-full">
       {/* Sidebar */}
       <div className="w-1/3 border-r p-4 overflow-y-auto">
         <h2 className="text-xl font-bold text-blue-700 mb-4">Messages</h2>
-        {mockConversations.map((conv, idx) => (
+        {mockConversationsState.map((conv, idx) => (
           <div
             key={conv.id}
             className={`flex items-center space-x-3 p-2 rounded cursor-pointer mb-2 hover:bg-blue-50 ${selected === idx ? "bg-blue-100" : ""}`}
@@ -68,17 +91,18 @@ const MessageSection = () => {
             </div>
           ))}
         </div>
-        <form className="flex mt-auto">
+        <form className="flex mt-auto" onSubmit={handleSend}>
           <input
             type="text"
             placeholder="Type your message..."
             className="flex-1 border rounded-l px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
-            disabled
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
           />
           <button
-            type="button"
+            type="submit"
             className="bg-blue-600 text-white px-4 py-2 rounded-r font-semibold"
-            disabled
+            disabled={!input.trim()}
           >
             Send
           </button>

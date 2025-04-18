@@ -39,8 +39,16 @@ const ProfileSection = () => {
     setShowSettings(false);
   };
 
+  const handleDeleteProfile = () => {
+    // For demo: clear profile and log out
+    if (window.confirm("Are you sure you want to delete your profile? This action cannot be undone.")) {
+      setProfile(null);
+      window.location.reload(); // Or call a logout handler if available
+    }
+  };
+
   if (showSettings) {
-    return <ProfileSettings initialProfile={profile} onSave={handleSave} onCancel={() => setShowSettings(false)} />;
+    return <ProfileSettings initialProfile={profile} onSave={handleSave} onCancel={() => setShowSettings(false)} onDelete={handleDeleteProfile} />;
   }
 
   return (
