@@ -5,6 +5,7 @@ import Profile from "../Profile/Profile";
 import { Route, Routes } from "react-router-dom";
 import PostDetails from "../PostDetails/PostDetails";
 
+
 const HomePage = () => {
   return (
     <div className="flex">
@@ -23,6 +24,7 @@ const HomePage = () => {
           <Route path="/post/:id" element={<PostDetails />}></Route>
 
         </Routes>
+
       </div>
 
       {/* Right part */}
