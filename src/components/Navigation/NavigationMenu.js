@@ -32,12 +32,12 @@ export const NavigationMenu = [
   {
     title: "Learning Plans",
     icon: <ListAlt />,
-    path: "/learningplans",
+    path: "/learning-plans",
   },
   {
     title: "Learning Progress",
     icon: <GroupIcon />,
-    path: "/learningprogress",
+    path: "/learningProgress",
   },
   {
     title: "Profile",

@@ -7,7 +7,7 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 
-const Navigation = () => {
+const Navigation = ({ setCurrentSection, currentSection }) => {
   // Use useState for anchorEl without TypeScript type annotations
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -21,13 +21,23 @@ const Navigation = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
   const handleLogout = () => {
     console.log("Logout clicked");
     handleClose();
   };
 
-  // Perform logout logic here
   const navigate = useNavigate();
+
+  // Handle section change
+  const handleSectionChange = (section) => {
+    setCurrentSection(section); // Update the current section
+    if (section === "profile") {
+      navigate(`/profile/${section}`);
+    } else {
+      navigate(`/${section}`);
+    }
+  };
 
   return (
     <div className="py-5">
@@ -35,12 +45,10 @@ const Navigation = () => {
       <div className="space-y-6">
         {NavigationMenu.map((item) => (
           <div
-            className="cursor-pointer flex space-x-3 items-center"
-            onClick={() =>
-              item.title === "Profile"
-                ? navigate(`/profile/${item.title}`)
-                : navigate(item.path)
-            }
+            className={`cursor-pointer flex space-x-3 items-center ${
+              item.path.replace('/', '') === currentSection ? "text-blue-500" : ""
+            }`}
+            onClick={() => handleSectionChange(item.path.replace('/', ''))}
             key={item.title}
           >
             {item.icon}
