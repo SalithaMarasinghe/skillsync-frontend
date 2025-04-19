@@ -41,21 +41,69 @@ export default function CommentModal({ open, handleClose }) {
   };
 
   const handleDeleteComment = () => {
-    console.log("Deleted comment:", selectedCommentId);
-    handleCloseMenu();
+    const updatedComments = comments.filter(comment => comment.id !== selectedCommentId);
+    setComments(updatedComments);
+    setAnchorEl(null); // close the menu
   };
+  
 
-  const handleEditComment = () => {
-    console.log("Edit comment:", selectedCommentId);
-    handleCloseMenu();
-  };
+  const [comments, setComments] = React.useState([
+    {
+      id: 1,
+      username: "Jane Doe",
+      handle: "@jane_d",
+      content: "Great post! Learned a lot from this project.",
+      avatar: "https://via.placeholder.com/150",
+    },
+    {
+      id: 2,
+      username: "John Smith",
+      handle: "@johnsmith",
+      content: "Awesome clone! I love the UI.",
+      avatar: "https://via.placeholder.com/150",
+    },
+    {
+      id: 3,
+      username: "Alice Wonder",
+      handle: "@alicew",
+      content: "Looking forward to building this too!",
+      avatar: "https://via.placeholder.com/150",
+    },
+  ]);
+  
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [editingCommentId, setEditingCommentId] = React.useState(null);
+  
 
   const [uploadingImage, setUploadingImage] = React.useState(false);
   const [selectedImage, setSelectedImage] = React.useState("");
 
-  const handleSubmit = (values) => {
-    console.log("handle submit", values);
+  const handleSubmit = (values, { resetForm }) => {
+    if (isEditing) {
+      // Update existing comment
+      const updated = comments.map((c) =>
+        c.id === editingCommentId ? { ...c, content: values.content } : c
+      );
+      setComments(updated);
+      setIsEditing(false);
+      setEditingCommentId(null);
+    } else {
+      // Add new comment
+      const newComment = {
+        id: Date.now(),
+        username: "Thushani Kavindya", // Replace with dynamic user data
+        handle: "@thushani123",
+        content: values.content,
+        avatar:
+          "http://res.cloudinary.com/dnbw04gbs/image/upload/v1690639851/instagram%20post/bywtgh9vJ4e80aywstss.png",
+      };
+      setComments([newComment, ...comments]);
+    }
+  
+    resetForm();
+    setSelectedImage(""); // Clear image if needed
   };
+  
 
   const formik = useFormik({
     initialValues: {
@@ -74,6 +122,16 @@ export default function CommentModal({ open, handleClose }) {
       setSelectedImage(URL.createObjectURL(imgFile));
     }
     setUploadingImage(false);
+  };
+
+  const handleEditComment = () => {
+    const commentToEdit = comments.find(c => c.id === selectedCommentId);
+    if (commentToEdit) {
+      formik.setFieldValue("content", commentToEdit.content); // Set comment in input
+      setEditingCommentId(commentToEdit.id);                  // Track which comment is being edited
+      setIsEditing(true);                                     // Switch to edit mode
+      handleCloseMenu();
+    }
   };
 
   return (
@@ -177,8 +235,9 @@ export default function CommentModal({ open, handleClose }) {
                     variant="contained"
                     type="submit"
                   >
-                    Comment
+                    {isEditing ? "Update" : "Comment"}
                   </Button>
+
                 </div>
               </form>
             </div>
