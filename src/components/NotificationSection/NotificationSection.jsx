@@ -32,7 +32,7 @@ const mockNotifications = [
 
 const NotificationSection = () => {
   return (
-    <div className="w-full h-full bg-white rounded-lg shadow-md mt-0 border border-gray-200 flex flex-col min-h-[500px] max-h-full">
+    <div className="w-full h-full bg-white rounded-lg shadow-md mt-0 border border-gray-200 flex flex-col min-h-[500px] max-h-full p-6">
       <h2 className="text-2xl font-bold text-blue-700 mb-6">Notifications</h2>
       <div className="flex-1 overflow-y-auto">
         {mockNotifications.length === 0 ? (

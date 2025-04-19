@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 import LearningPlans from "./components/LearningPlansSection/LearningPlan";
 import Navigation from "./components/Navigation/Navigation"; // Make sure Navigation is properly imported
@@ -18,13 +18,50 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showSignup, setShowSignup] = useState(true);
 
-  const handleLogin = (values) => {
-    // For demo: accept any gmail/password
-    setIsAuthenticated(true);
+  // Check for JWT token on mount
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  const handleLogin = async (values) => {
+    try {
+      const res = await fetch("http://localhost:4043/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      if (!res.ok) throw new Error("Invalid credentials");
+      const data = await res.json();
+      localStorage.setItem("token", data.token);
+      setIsAuthenticated(true);
+    } catch (err) {
+      alert("Login failed: " + err.message);
+    }
   };
 
-  const handleSignup = (values) => {
-    setIsAuthenticated(true);
+  const handleSignup = async (values) => {
+    try {
+      const res = await fetch("http://localhost:4043/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      if (!res.ok) throw new Error("Signup failed");
+      const data = await res.json();
+      localStorage.setItem("token", data.token);
+      setIsAuthenticated(true);
+      setShowSignup(false);
+    } catch (err) {
+      alert("Signup failed: " + err.message);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsAuthenticated(false);
     setShowSignup(false);
   };
 
@@ -45,7 +82,7 @@ function App() {
     <div className="flex h-screen overflow-hidden">
       {/* Left side: Navigation area */}
       <div className="w-1/4 p-5">
-        <Navigation setCurrentSection={setCurrentSection} currentSection={currentSection} onLogout={() => setIsAuthenticated(false)} />
+        <Navigation setCurrentSection={setCurrentSection} currentSection={currentSection} onLogout={handleLogout} />
       </div>
 
       {/* Center: Content area */}

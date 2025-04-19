@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
@@ -43,23 +43,20 @@ const validationSchema = Yup.object().shape({
 });
 
 const LearningPlans = () => {
-  const [learningPlans, setLearningPlans] = useState([
-    {
-      id: 1,
-      name: "Plan 1",
-      description: "This is plan 1 description",
-      topics: ["Topic 1", "Topic 2", "Topic 3"],
-      resources: ["Resource 1", "Resource 2"],
-    },
-    {
-      id: 2,
-      name: "Plan 2",
-      description: "This is plan 2 description",
-      topics: ["Topic 4", "Topic 5", "Topic 6"],
-      resources: ["Resource 3", "Resource 4"],
-    },
-  ]);
+  const [learningPlans, setLearningPlans] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
+
+  // Fetch learning plans from backend
+  const fetchLearningPlans = () => {
+    fetch("http://localhost:4043/api/learningplans")
+      .then((res) => res.json())
+      .then((data) => setLearningPlans(data))
+      .catch((err) => console.error("Error fetching learning plans:", err));
+  };
+
+  useEffect(() => {
+    fetchLearningPlans();
+  }, []);
 
   const formik = useFormik({
     initialValues: {
@@ -72,7 +69,6 @@ const LearningPlans = () => {
     enableReinitialize: true,
     onSubmit: (values, { resetForm }) => {
       const plan = {
-        id: editIndex !== null ? learningPlans[editIndex].id : Date.now(),
         name: values.name,
         description: values.description,
         topics: values.topics.split(",").map((t) => t.trim()).filter(Boolean),
@@ -80,13 +76,39 @@ const LearningPlans = () => {
       };
       if (editIndex !== null) {
         // Update
-        setLearningPlans((prev) => prev.map((p, idx) => idx === editIndex ? plan : p));
-        setEditIndex(null);
+        const planId = learningPlans[editIndex].id;
+        fetch(`http://localhost:4043/api/learningplans/${planId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(plan),
+        })
+          .then((res) => {
+            if (!res.ok) throw new Error("Update failed");
+            return res.json();
+          })
+          .then(() => {
+            fetchLearningPlans();
+            setEditIndex(null);
+            resetForm();
+          })
+          .catch((err) => alert("Failed to update: " + err.message));
       } else {
         // Create
-        setLearningPlans((prevPlans) => [...prevPlans, plan]);
+        fetch("http://localhost:4043/api/learningplans", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(plan),
+        })
+          .then((res) => {
+            if (!res.ok) throw new Error("Create failed");
+            return res.json();
+          })
+          .then(() => {
+            fetchLearningPlans();
+            resetForm();
+          })
+          .catch((err) => alert("Failed to create: " + err.message));
       }
-      resetForm();
     },
   });
 
@@ -102,19 +124,21 @@ const LearningPlans = () => {
   };
 
   const handleDelete = (index) => {
-    setLearningPlans((prev) => prev.filter((_, idx) => idx !== index));
-    if (editIndex === index) {
-      setEditIndex(null);
-      formik.resetForm();
-    }
+    const planId = learningPlans[index].id;
+    if (!window.confirm("Are you sure you want to delete this learning plan?")) return;
+    fetch(`http://localhost:4043/api/learningplans/${planId}`, {
+      method: "DELETE",
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Delete failed");
+        fetchLearningPlans();
+        if (editIndex === index) {
+          setEditIndex(null);
+          formik.resetForm();
+        }
+      })
+      .catch((err) => alert("Failed to delete: " + err.message));
   };
-
-  // TODO: Replace local state with API calls to Spring Boot backend for CRUD operations
-  // Example for integration:
-  // - Fetch plans: useEffect(() => { fetch('/api/learning-plans')... }, [])
-  // - Create: POST /api/learning-plans
-  // - Update: PUT /api/learning-plans/{id}
-  // - Delete: DELETE /api/learning-plans/{id}
 
   return (
     <div className="learning-plans-container bg-gray-50 min-h-screen py-8">
