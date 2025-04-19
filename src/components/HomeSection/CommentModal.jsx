@@ -4,7 +4,6 @@ import Modal from "@mui/material/Modal";
 import { Avatar, Button, Menu, MenuItem } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ImageIcon from '@mui/icons-material/Image';
-import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import TagFacesIcon from '@mui/icons-material/TagFaces';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'; // Menu icon
 import DeleteIcon from '@mui/icons-material/Delete'; // Delete icon
@@ -219,7 +218,7 @@ export default function CommentModal({ open, handleClose }) {
                       />
                     </label>
 
-                    <TagFacesIcon className="text-[#1d9bf0]" />
+                    <TagFacesIcon className="text-[#1d9bf0], cursor-pointer" />
                   </div>
 
                   <Button
