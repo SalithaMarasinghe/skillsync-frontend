@@ -1,10 +1,6 @@
 import React from "react";
-import Navigation from "../Navigation/Navigation";
-import HomeSection from "../HomeSection/HomeSection";
-import Profile from "../Profile/Profile";
-import { Route, Routes } from "react-router-dom";
-import PostDetails from "../PostDetails/PostDetails";
-
+import HomeSection from "./HomeSection/HomeSection";
+import Navigation from "./Navigation/Navigation";
 
 const HomePage = () => {
   return (
@@ -13,17 +9,12 @@ const HomePage = () => {
       <div className="w-1/4 ml-10 ">
         {" "}
         <Navigation />
+
       </div>
 
       {/* Middle part */}
       <div className="w-1/2">
         <HomeSection />
-        <Routes>
-          <Route path="/" element={<HomeSection/>}></Route>
-          <Route path="/profile/:id" element={<Profile />}></Route>
-          <Route path="/post/:id" element={<PostDetails />}></Route>
-
-        </Routes>
 
       </div>
 

@@ -9,6 +9,7 @@ import MessageSection from "./components/MessageSection/MessageSection";
 import ExploreSection from "./components/ExploreSection/ExploreSection";
 import LearningProgress from "./components/LearningProgressSection/LearningProgress";
 import AIChatbotSection from "./components/AIChatbotSection/AIChatbotSection";
+import PostDetails from "./components/PostDetails/PostDetails";
 
 function App() {
   // Track the current section to dynamically change the view
@@ -31,6 +32,9 @@ function App() {
         {currentSection === "notifications" && <NotificationSection />}
         {currentSection === "messages" && <MessageSection />}
         {currentSection === "explore" && <ExploreSection />}
+        {currentSection === "postDetails" && <PostDetails />}
+        
+      
       </div>
 
       {/* Right side: AI Chatbot only */}
