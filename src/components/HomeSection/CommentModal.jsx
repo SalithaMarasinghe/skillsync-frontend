@@ -1,7 +1,7 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
-import { Avatar, Button, Menu, MenuItem } from "@mui/material";
+import { Avatar, Button, Menu, MenuItem, Popover } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ImageIcon from '@mui/icons-material/Image';
 import TagFacesIcon from '@mui/icons-material/TagFaces';
@@ -9,6 +9,36 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz'; // Menu icon
 import DeleteIcon from '@mui/icons-material/Delete'; // Delete icon
 import EditIcon from '@mui/icons-material/Edit'; // Edit icon
 import { formik, useFormik } from "formik";
+
+// Emoji data
+const emojiData = [
+  "😀",
+  "😃",
+  "😄",
+  "😁",
+  "😆",
+  "😅",
+  "😂",
+  "🤣",
+  "😊",
+  "😇",
+  "🙂",
+  "🙃",
+  "😉",
+  "😌",
+  "😍",
+  "🥰",
+  "😘",
+  "👍",
+  "👎",
+  "👌",
+  "✌️",
+  "🤞",
+  "❤️",
+  "🔥",
+  "👏",
+  "🙏",
+]
 
 const style = {
   position: "absolute",
@@ -30,6 +60,10 @@ export default function CommentModal({ open, handleClose }) {
   const [selectedCommentId, setSelectedCommentId] = React.useState(null);
   const openMenu = Boolean(anchorEl);
 
+  // Emoji picker state
+  const [emojiAnchorEl, setEmojiAnchorEl] = React.useState(null)
+  const openEmojiPicker = Boolean(emojiAnchorEl)
+
   const handleClickMenu = (event, commentId) => {
     setSelectedCommentId(commentId);
     setAnchorEl(event.currentTarget);
@@ -44,6 +78,20 @@ export default function CommentModal({ open, handleClose }) {
     setComments(updatedComments);
     setAnchorEl(null); // close the menu
   };
+
+  // Emoji picker handlers
+  const handleOpenEmojiPicker = (event) => {
+    setEmojiAnchorEl(event.currentTarget)
+  }
+
+  const handleCloseEmojiPicker = () => {
+    setEmojiAnchorEl(null)
+  }
+
+  const handleEmojiSelect = (emoji) => {
+    formik.setFieldValue("content", formik.values.content + emoji)
+  }
+
   
 
   const [comments, setComments] = React.useState([
@@ -206,19 +254,56 @@ export default function CommentModal({ open, handleClose }) {
                   </div>
                 )}
 
-                <div className="flex justify-between items-center mt-5">
+<div className="flex justify-between items-center mt-5">
                   <div className="flex space-x-5 items-center">
                     <label className="flex items-center space-x-2 rounded-md cursor-pointer">
                       <ImageIcon className="text-[#1d9bf0]" />
-                      <input
-                        type="file"
-                        name="imageFile"
-                        className="hidden"
-                        onChange={handleSelectImage}
-                      />
+                      <input type="file" name="imageFile" className="hidden" onChange={handleSelectImage} />
                     </label>
 
-                    <TagFacesIcon className="text-[#1d9bf0], cursor-pointer" />
+                    <TagFacesIcon className="text-[#1d9bf0] cursor-pointer" onClick={handleOpenEmojiPicker} />
+
+                    {/* Emoji Picker */}
+                    <Popover
+                      open={openEmojiPicker}
+                      anchorEl={emojiAnchorEl}
+                      onClose={handleCloseEmojiPicker}
+                      anchorOrigin={{
+                        vertical: "bottom",
+                        horizontal: "left",
+                      }}
+                    >
+                      <Box sx={{ p: 2, width: 250 }}>
+                        <Box
+                          sx={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(6, 1fr)",
+                            gap: 1,
+                          }}
+                        >
+                          {emojiData.map((emoji, index) => (
+                            <Box
+                              key={index}
+                              sx={{
+                                fontSize: "1.5rem",
+                                cursor: "pointer",
+                                textAlign: "center",
+                                "&:hover": {
+                                  backgroundColor: "rgba(0,0,0,0.04)",
+                                  borderRadius: "4px",
+                                },
+                              }}
+                              onClick={() => {
+                                handleEmojiSelect(emoji)
+                                handleCloseEmojiPicker()
+                              }}
+                            >
+                              {emoji}
+                            </Box>
+                          ))}
+                        </Box>
+                      </Box>
+                    </Popover>
                   </div>
 
                   <Button
