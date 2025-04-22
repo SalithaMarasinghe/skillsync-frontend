@@ -1,6 +1,7 @@
 import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import LoginGoogleOAuthButton from "./LoginGoogleOAuthButton";
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
@@ -8,7 +9,7 @@ const validationSchema = Yup.object().shape({
   password: Yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
 });
 
-const SignupPage = ({ onSignup, onGoogleSignup, onLogin }) => {
+const SignupPage = ({ onSignup, onLogin }) => {
   const formik = useFormik({
     initialValues: {
       name: "",
@@ -80,24 +81,18 @@ const SignupPage = ({ onSignup, onGoogleSignup, onLogin }) => {
           >
             Sign Up
           </button>
-          <button
-            type="button"
-            className="mt-4 w-full bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition font-semibold"
-            onClick={onGoogleSignup}
-          >
-            Sign up with Google
-          </button>
+          <LoginGoogleOAuthButton />
+          <div className="text-center mt-4">
+            <span>Already have an account? </span>
+            <button
+              type="button"
+              className="text-blue-600 underline"
+              onClick={onLogin}
+            >
+              Log In
+            </button>
+          </div>
         </form>
-        <div className="text-center mt-4">
-          <span>Already have an account? </span>
-          <button
-            type="button"
-            className="text-blue-600 underline"
-            onClick={onLogin}
-          >
-            Log In
-          </button>
-        </div>
       </div>
     </div>
   );

@@ -55,6 +55,18 @@ function App() {
     };
   }, []);
 
+  // Google OAuth: read token from URL and store it
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tokenFromUrl = params.get("token");
+    if (tokenFromUrl) {
+      localStorage.setItem("token", tokenFromUrl);
+      setIsAuthenticated(true);
+      // Clean up the URL
+      window.history.replaceState({}, document.title, "/");
+    }
+  }, []);
+
   // Update session on login/signup
   const afterAuth = (token) => {
     localStorage.setItem("token", token);
