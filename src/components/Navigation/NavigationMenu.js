@@ -2,7 +2,6 @@
 import HomeIcon from "@mui/icons-material/Home";
 import ExploreIcon from "@mui/icons-material/Explore";
 import NotificationIcon from "@mui/icons-material/Notifications";
-import MessageIcon from "@mui/icons-material/Message";
 import ListAlt from "@mui/icons-material/ListAlt";
 import GroupIcon from "@mui/icons-material/Group";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
@@ -24,11 +23,12 @@ export const NavigationMenu = [
     icon: <NotificationIcon />,
     path: "/notifications",
   },
-  {
-    title: "Messages",
-    icon: <MessageIcon />,
-    path: "/messages",
-  },
+  // Removed Messages section
+  // {
+  //   title: "Messages",
+  //   icon: <MessageIcon />, 
+  //   path: "/messages",
+  // },
   {
     title: "Learning Plans",
     icon: <ListAlt />,

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import logo from "../../assets/logo.png";
 import { NavigationMenu } from "../Navigation/NavigationMenu"; // Corrected import
 import { useNavigate } from "react-router";
@@ -27,8 +27,8 @@ const Navigation = ({ user, setCurrentSection, currentSection, onLogout }) => {
   };
 
   return (
-    <div className="py-5">
-      <img src={logo} alt="Logo" className="w-32 h-auto" />
+    <div className="py-5 flex flex-col items-center">
+      <img src={logo} alt="Logo" className="w-32 h-auto mx-auto" />
       <div className="space-y-6">
         {/* User Profile Details */}
         {user && (
@@ -39,7 +39,7 @@ const Navigation = ({ user, setCurrentSection, currentSection, onLogout }) => {
             {user.bio && <div className="text-gray-600 text-xs mt-1 text-center">{user.bio}</div>}
           </div>
         )}
-        {NavigationMenu.filter(item => item.title !== "Post").map((item) => (
+        {NavigationMenu.filter(item => item.title !== "Post" && item.title !== "Messages").map((item) => (
           <div
             className={`cursor-pointer flex space-x-3 items-center ${
               item.path.replace('/', '') === currentSection ? "text-blue-500" : ""
