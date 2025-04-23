@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./App.css";
 import LearningPlans from "./components/LearningPlansSection/LearningPlan";
-import Navigation from "./components/Navigation/Navigation"; // Make sure Navigation is properly imported
-import HomeSection from "./components/HomeSection/HomeSection"; // Correct HomeSection import
+import Navigation from "./components/Navigation/Navigation";
+import HomeSection from "./components/HomeSection/HomeSection";
 import ProfileSection from "./components/ProfileSection/ProfileSection";
 import NotificationSection from "./components/NotificationSection/NotificationSection";
 import MessageSection from "./components/MessageSection/MessageSection";
@@ -12,19 +12,23 @@ import LearningProgress from "./components/LearningProgressSection/LearningProgr
 import AIChatbotSection from "./components/AIChatbotSection/AIChatbotSection";
 import LoginPage from "./components/Auth/LoginPage";
 import SignupPage from "./components/Auth/SignupPage";
+import PostCard from "./components/HomeSection/PostCard";
+import { getPosts, getFollowingPosts } from "./api";
 
 function App() {
-  // Track the current section to dynamically change the view
   const [currentSection, setCurrentSection] = useState("home");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [showSignup, setShowSignup] = useState(false); // Default to false
+  const [showSignup, setShowSignup] = useState(false);
   const [user, setUser] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [isLoadingPosts, setIsLoadingPosts] = useState(false);
   const navigate = useNavigate();
 
-  // Session management: fetch user profile from backend if token exists
+  // Fetch user profile and posts when authenticated
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
+      // Fetch user profile
       fetch("http://localhost:4043/api/users/me", {
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -35,6 +39,7 @@ function App() {
         .then((userData) => {
           setUser(userData);
           setIsAuthenticated(true);
+          fetchPosts(); // Fetch posts after user is authenticated
         })
         .catch(() => {
           setIsAuthenticated(false);
@@ -45,6 +50,19 @@ function App() {
       setIsAuthenticated(false);
       setUser(null);
     }
+
+    const fetchPosts = async () => {
+      setIsLoadingPosts(true);
+      try {
+        const response = await getPosts();
+        setPosts(response.data);
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      } finally {
+        setIsLoadingPosts(false);
+      }
+    };
+
     // Listen for profile updates from ProfileSection
     const handleProfileUpdated = (e) => {
       setUser(e.detail);
@@ -62,10 +80,35 @@ function App() {
     if (tokenFromUrl) {
       localStorage.setItem("token", tokenFromUrl);
       setIsAuthenticated(true);
-      // Clean up the URL
       window.history.replaceState({}, document.title, "/");
     }
   }, []);
+
+  // Fetch posts based on current section
+  const fetchPosts = async () => {
+    setIsLoadingPosts(true);
+    try {
+      let response;
+      if (currentSection === "home") {
+        response = await getPosts();
+      } else if (currentSection === "explore") {
+        response = await getFollowingPosts();
+      }
+      
+      // Add cache-busting to image URLs
+      const postsWithMedia = response.data.map(post => ({
+        ...post,
+        imageUrls: post.imageIds?.map(id => `/posts/media/${id}?${Date.now()}`) || [],
+        videoUrl: post.videoId ? `/posts/media/${post.videoId}?${Date.now()}` : null
+      }));
+      
+      setPosts(postsWithMedia);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    } finally {
+      setIsLoadingPosts(false);
+    }
+  };
 
   // Update session on login/signup
   const afterAuth = (token) => {
@@ -77,6 +120,7 @@ function App() {
       .then((userData) => {
         setUser(userData);
         setIsAuthenticated(true);
+        fetchPosts(); // Fetch posts after authentication
       });
   };
 
@@ -89,7 +133,7 @@ function App() {
       });
       if (!res.ok) throw new Error("Invalid credentials");
       const data = await res.json();
-      afterAuth(data.token);
+      await afterAuth(data.token);
     } catch (err) {
       alert("Login failed: " + err.message);
     }
@@ -108,14 +152,13 @@ function App() {
       }
       if (!res.ok) throw new Error("Signup failed");
       const data = await res.json();
-      afterAuth(data.token);
+      await afterAuth(data.token);
       setShowSignup(false);
     } catch (err) {
       alert("Signup failed: " + err.message);
     }
   };
 
-  // Google OAuth signup handler (popup window)
   const handleGoogleSignup = async () => {
     const clientId = "715372036340-e4j5nagbqers9ocutat52l568cqt05vu.apps.googleusercontent.com";
     const redirectUri = window.location.origin + "/google-oauth-callback.html";
@@ -127,7 +170,6 @@ function App() {
       "GoogleSignUp",
       "width=500,height=600,left=200,top=100,status=no,scrollbars=yes,resizable=yes"
     );
-    // Listen for message from popup
     window.addEventListener("message", async (event) => {
       if (event.origin !== window.location.origin) return;
       if (event.data.type === "google-oauth-token" && event.data.token) {
@@ -139,7 +181,7 @@ function App() {
           });
           if (!res.ok) throw new Error("Google signup failed");
           const data = await res.json();
-          await afterAuth(data.token); // Await authentication before redirect
+          await afterAuth(data.token);
           setShowSignup(false);
           navigate("/");
         } catch (err) {
@@ -149,7 +191,6 @@ function App() {
     }, { once: true });
   };
 
-  // Google OAuth login handler (popup window)
   const handleGoogleLogin = async () => {
     const clientId = "715372036340-e4j5nagbqers9ocutat52l568cqt05vu.apps.googleusercontent.com";
     const redirectUri = window.location.origin + "/google-oauth-callback.html";
@@ -182,13 +223,20 @@ function App() {
     }, { once: true });
   };
 
-  // Logout handler
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsAuthenticated(false);
     setUser(null);
     setShowSignup(false);
+    setPosts([]);
   };
+
+  // Refresh posts when section changes
+  useEffect(() => {
+    if (isAuthenticated && (currentSection === "home" || currentSection === "explore")) {
+      fetchPosts();
+    }
+  }, [currentSection, isAuthenticated]);
 
   // Show signup page if not authenticated and showSignup is true
   if (!isAuthenticated && showSignup) {
@@ -203,22 +251,60 @@ function App() {
     <div className="flex h-screen overflow-hidden">
       {/* Left side: Navigation area */}
       <div className="w-1/4 p-5">
-        <Navigation user={user} setCurrentSection={setCurrentSection} currentSection={currentSection} onLogout={handleLogout} />
+        <Navigation 
+          user={user} 
+          setCurrentSection={setCurrentSection} 
+          currentSection={currentSection} 
+          onLogout={handleLogout} 
+        />
       </div>
 
       {/* Center: Content area */}
       <div className="flex-1 p-5 overflow-y-auto h-screen">
         {/* Render the relevant content based on the currentSection state */}
-        {currentSection === "home" && <HomeSection />}
+        {currentSection === "home" && (
+          <div className="space-y-4">
+            <HomeSection user={user} refreshPosts={fetchPosts} />
+            {isLoadingPosts ? (
+              <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+              </div>
+            ) : (
+              posts.map(post => (
+                <PostCard 
+                      key={post.id} 
+                      post={post} 
+                      user={user} 
+                      refreshPosts={fetchPosts} 
+                />
+              ))
+            )}
+          </div>
+        )}
         {currentSection === "learning-plans" && <LearningPlans />}
         {currentSection === "learning-progress" && <LearningProgress />}
-        {currentSection === "profile" ? (
-          <ProfileSection user={user} />
-        ) : (
-          currentSection === "notifications" && <NotificationSection />
-        )}
+        {currentSection === "profile" && <ProfileSection user={user} />}
+        {currentSection === "notifications" && <NotificationSection />}
         {currentSection === "messages" && <MessageSection />}
-        {currentSection === "explore" && <ExploreSection />}
+        {currentSection === "explore" && (
+          <div className="space-y-4">
+            <ExploreSection user={user} />
+            {isLoadingPosts ? (
+              <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+              </div>
+            ) : (
+              posts.map(post => (
+                <PostCard 
+                  key={post.id} 
+                  post={post} 
+                  user={user} 
+                  refreshPosts={fetchPosts} 
+                />
+              ))
+            )}
+          </div>
+        )}
       </div>
 
       {/* Right side: AI Chatbot only */}
