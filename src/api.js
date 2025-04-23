@@ -32,6 +32,10 @@ export const createPost = (content, images, video) => {
   });
 };
 
+export const getMediaUrl = (fileId) => {
+  return `${API_BASE_URL}/posts/media/${fileId}`;
+};
+
 export const updatePost = (postId, content) => {
   return api.put(`/posts/${postId}`, null, {
     params: { content },
@@ -49,7 +53,3 @@ export const getFollowingPosts = () => api.get('/posts/following');
 export const getRecommendedUsers = () => api.get('/users/recommendations');
 export const followUser = (userId) => api.post(`/users/follow/${userId}`);
 export const unfollowUser = (userId) => api.post(`/users/unfollow/${userId}`);
-
-export const getMediaUrl = (fileId) => {
-  return `${API_BASE_URL}/posts/media/${fileId}`;
-};

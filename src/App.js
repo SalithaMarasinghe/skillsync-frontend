@@ -54,8 +54,21 @@ function App() {
     const fetchPosts = async () => {
       setIsLoadingPosts(true);
       try {
-        const response = await getPosts();
-        setPosts(response.data);
+        let response;
+        if (currentSection === "home") {
+          response = await getPosts();
+        } else if (currentSection === "explore") {
+          response = await getFollowingPosts();
+        }
+        
+        // Ensure posts have proper media URLs
+        const postsWithMedia = response.data.map(post => ({
+          ...post,
+          imageUrls: post.imageIds?.map(id => `/posts/media/${id}`) || [],
+          videoUrl: post.videoId ? `/posts/media/${post.videoId}` : null
+        }));
+        
+        setPosts(postsWithMedia);
       } catch (error) {
         console.error("Error fetching posts:", error);
       } finally {
@@ -94,15 +107,7 @@ function App() {
       } else if (currentSection === "explore") {
         response = await getFollowingPosts();
       }
-      
-      // Add cache-busting to image URLs
-      const postsWithMedia = response.data.map(post => ({
-        ...post,
-        imageUrls: post.imageIds?.map(id => `/posts/media/${id}?${Date.now()}`) || [],
-        videoUrl: post.videoId ? `/posts/media/${post.videoId}?${Date.now()}` : null
-      }));
-      
-      setPosts(postsWithMedia);
+      setPosts(response.data);
     } catch (error) {
       console.error("Error fetching posts:", error);
     } finally {

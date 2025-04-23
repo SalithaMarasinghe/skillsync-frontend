@@ -182,51 +182,37 @@ const PostCard = ({ post, user, refreshPosts }) => {
             <p className="mt-1 mb-2 text-gray-800">{post.content}</p>
           )}
           
-          {/* Media display */}
-          {post.imageUrls?.length > 0 && (
-          <div className={`grid gap-2 mb-3 ${
-              post.imageUrls.length === 1 ? 'grid-cols-1' : 'grid-cols-2'
+            {post.imageUrls?.length > 0 && (
+              <div className={`grid gap-2 mb-3 ${
+                post.imageUrls.length === 1 ? 'grid-cols-1' : 'grid-cols-2'
               }`}>
-          {post.imageUrls.map((url, index) => (
-            <div key={index} className="relative group">
-              <img 
-                src={`http://localhost:4043${url}`}
-                alt={`Post ${post.id} image ${index}`}
-                className="rounded-lg object-cover w-full h-48 hover:opacity-90 transition-opacity"
-                loading="lazy"  // Add lazy loading
-                decoding="async" // Add async decoding
-                onError={(e) => {
-                  e.target.src = "https://via.placeholder.com/500x300?text=Image+Not+Available";
-                }}
-                />
-                {/* Add loading skeleton */}
-                <div className="absolute inset-0 bg-gray-200 animate-pulse rounded-lg" 
-                    style={{ display: 'none' }}
-                    ref={(el) => {
-                      if (el) {
-                        const img = el.previousSibling;
-                        img.onload = () => el.style.display = 'none';
-                        img.onerror = () => el.style.display = 'none';
-                      }
-                    }}>
-                </div>
+                {post.imageUrls.map((url, index) => (
+                  <div key={index} className="relative group">
+                    <img 
+                      src={`http://localhost:4043${url}`} // Add the base URL
+                      alt={`Post ${post.id} image ${index}`}
+                      className="rounded-lg object-cover w-full h-48 hover:opacity-90 transition-opacity"
+                      onError={(e) => {
+                        e.target.src = "https://via.placeholder.com/500x300?text=Image+Not+Available";
+                      }}
+                    />
                   </div>
                 ))}
               </div>
             )}
-          
-          {post.videoUrl && (
-            <div className="mb-3">
-              <video 
-                src={post.videoUrl} 
-                controls 
-                className="rounded-lg w-full"
-                onError={(e) => {
-                  e.target.src = "https://via.placeholder.com/500x300?text=Video+Not+Available";
-                }}
-              />
-            </div>
-          )}
+
+            {post.videoUrl && (
+              <div className="mb-3">
+                <video 
+                  src={`http://localhost:4043${post.videoUrl}`} // Add the base URL
+                  controls 
+                  className="rounded-lg w-full"
+                  onError={(e) => {
+                    e.target.src = "https://via.placeholder.com/500x300?text=Video+Not+Available";
+                  }}
+                />
+              </div>
+            )}
           
           {/* Post actions */}
           <div className="flex justify-between mt-3 text-gray-500">

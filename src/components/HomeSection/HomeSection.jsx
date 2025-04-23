@@ -21,23 +21,11 @@ const HomeSection = ({ user, refreshPosts }) => {
     setIsSubmitting(true);
     try {
       const images = selectedImages.map(img => img.file);
-      await createPost(values.content, images, selectedVideo?.file);
-      
-      // Clear form without losing context
+      const response = await createPost(values.content, images, selectedVideo?.file);
       formik.resetForm();
-      
-      // Revoke object URLs to prevent memory leaks
-      selectedImages.forEach(img => URL.revokeObjectURL(img.preview));
-      if (selectedVideo) URL.revokeObjectURL(selectedVideo.preview);
-      
       setSelectedImages([]);
       setSelectedVideo(null);
-      
-      // Trigger a smooth refresh of posts
       refreshPosts();
-      
-      // Scroll to top to show the new post
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
       console.error("Error creating post:", error);
       alert("Failed to create post");
@@ -45,6 +33,7 @@ const HomeSection = ({ user, refreshPosts }) => {
       setIsSubmitting(false);
     }
   };
+  
 
   const formik = useFormik({
     initialValues: {
@@ -54,25 +43,15 @@ const HomeSection = ({ user, refreshPosts }) => {
     validationSchema,
   });
 
-  const handleSelectImages = async (event) => {
+  const handleSelectImages = (event) => {
     const files = Array.from(event.target.files).slice(0, 3);
-    
-    // Compress images before preview
-    const compressedFiles = await Promise.all(files.map(async (file) => {
-      if (file.type.startsWith('image/')) {
-        return await compressImage(file);
-      }
-      return file;
-    }));
-  
-    const newImages = compressedFiles.map(file => ({
+    const newImages = files.map(file => ({
       file,
       preview: URL.createObjectURL(file)
     }));
-    
     setSelectedImages(newImages);
     setSelectedVideo(null);
-    event.target.value = null;
+    event.target.value = null; // Reset input to allow selecting same files again
   };
 
   const handleSelectVideo = (event) => {
@@ -87,53 +66,6 @@ const HomeSection = ({ user, refreshPosts }) => {
     }
   };
 
-  const compressImage = async (file) => {
-    return new Promise((resolve) => {
-      if (file.size < 500000) { // Don't compress if already small
-        resolve(file);
-        return;
-      }
-  
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.src = event.target.result;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 1024;
-          const MAX_HEIGHT = 1024;
-          let width = img.width;
-          let height = img.height;
-  
-          if (width > height) {
-            if (width > MAX_WIDTH) {
-              height *= MAX_WIDTH / width;
-              width = MAX_WIDTH;
-            }
-          } else {
-            if (height > MAX_HEIGHT) {
-              width *= MAX_HEIGHT / height;
-              height = MAX_HEIGHT;
-            }
-          }
-  
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-  
-          canvas.toBlob((blob) => {
-            resolve(new File([blob], file.name, {
-              type: 'image/jpeg',
-              lastModified: Date.now()
-            }));
-          }, 'image/jpeg', 0.7);
-        };
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-  
   const removeImage = (index) => {
     const newImages = [...selectedImages];
     newImages.splice(index, 1);
