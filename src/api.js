@@ -51,6 +51,8 @@ export const followUser = (userId) => api.post(`/api/users/follow/${userId}`);
 export const unfollowUser = (userId) => api.post(`/api/users/unfollow/${userId}`);
 
 // Comment API functions
+
+//Create Comment
 export const createComment = async (postId, content) => {
   try {
     const response = await api.post('/api/comments', {
@@ -64,6 +66,7 @@ export const createComment = async (postId, content) => {
   }
 };
 
+//Get Comments for a Post
 export const getCommentsByPostId = async (postId) => {
   try {
     const response = await api.get(`/api/comments/post/${postId}`);
@@ -74,6 +77,7 @@ export const getCommentsByPostId = async (postId) => {
   }
 };
 
+//Update Comment
 export const updateComment = async (commentId, content) => {
   try {
     const response = await api.put(`/api/comments/${commentId}`, {
@@ -86,6 +90,7 @@ export const updateComment = async (commentId, content) => {
   }
 };
 
+//Delete Comment
 export const deleteComment = async (commentId) => {
   try {
     const response = await api.delete(`/api/comments/${commentId}`);
