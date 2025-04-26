@@ -20,6 +20,7 @@ import {
 } from "../../api";
 import { useNavigate } from "react-router-dom";
 import { IconButton, Menu, MenuItem, TextField } from "@mui/material";
+import styled from "styled-components";
 
 const PostCard = ({ post, user, refreshPosts }) => {
   const [isLiked, setIsLiked] = useState(post.likedBy.includes(user?.id));
@@ -182,37 +183,37 @@ const PostCard = ({ post, user, refreshPosts }) => {
             <p className="mt-1 mb-2 text-gray-800">{post.content}</p>
           )}
           
-            {post.imageUrls?.length > 0 && (
-              <div className={`grid gap-2 mb-3 ${
-                post.imageUrls.length === 1 ? 'grid-cols-1' : 'grid-cols-2'
-              }`}>
-                {post.imageUrls.map((url, index) => (
-                  <div key={index} className="relative group">
-                    <img 
-                      src={`http://localhost:4043${url}`} // Add the base URL
-                      alt={`Post ${post.id} image ${index}`}
-                      className="rounded-lg object-cover w-full h-48 hover:opacity-90 transition-opacity"
-                      onError={(e) => {
-                        e.target.src = "https://via.placeholder.com/500x300?text=Image+Not+Available";
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
+          {post.imageUrls?.length > 0 && (
+            <div className={`grid gap-2 mb-3 ${
+              post.imageUrls.length === 1 ? 'grid-cols-1' : 'grid-cols-2'
+            }`}>
+              {post.imageUrls.map((url, index) => (
+                <div key={index} className="relative group">
+                  <img 
+                    src={`http://localhost:4043${url}`}
+                    alt={`Post ${post.id} image ${index}`}
+                    className="rounded-lg object-cover w-full h-48 hover:opacity-90 transition-opacity"
+                    onError={(e) => {
+                      e.target.src = "https://via.placeholder.com/500x300?text=Image+Not+Available";
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
 
-            {post.videoUrl && (
-              <div className="mb-3">
-                <video 
-                  src={`http://localhost:4043${post.videoUrl}`} // Add the base URL
-                  controls 
-                  className="rounded-lg w-full"
-                  onError={(e) => {
-                    e.target.src = "https://via.placeholder.com/500x300?text=Video+Not+Available";
-                  }}
-                />
-              </div>
-            )}
+          {post.videoUrl && (
+            <div className="mb-3">
+              <video 
+                src={`http://localhost:4043${post.videoUrl}`}
+                controls 
+                className="rounded-lg w-full"
+                onError={(e) => {
+                  e.target.src = "https://via.placeholder.com/500x300?text=Video+Not+Available";
+                }}
+              />
+            </div>
+          )}
           
           {/* Post actions */}
           <div className="flex justify-between mt-3 text-gray-500">
@@ -263,31 +264,29 @@ const PostCard = ({ post, user, refreshPosts }) => {
                 </div>
               ))}
               
-              {/* Add comment form */}
-              <form onSubmit={handleAddComment} className="flex space-x-2 mt-2">
-                <Avatar 
-                  src={user?.photo || "https://via.placeholder.com/150"} 
-                  sx={{ width: 32, height: 32 }}
-                />
-                <div className="flex-1 flex items-center">
-                  <input
-                    type="text"
-                    value={commentContent}
-                    onChange={(e) => setCommentContent(e.target.value)}
-                    placeholder="Add a comment..."
-                    className="flex-1 border rounded-full px-3 py-1 text-sm bg-gray-100 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
+              {/* Styled comment form */}
+              <StyledCommentForm>
+                <form onSubmit={handleAddComment} className="form">
+                  <div className="form-group">
+                    <label htmlFor="comment">Add a comment</label>
+                    <textarea 
+                      id="comment"
+                      name="comment"
+                      value={commentContent}
+                      onChange={(e) => setCommentContent(e.target.value)}
+                      rows={3}
+                      required
+                    />
+                  </div>
                   <button 
                     type="submit"
+                    className="form-submit-btn"
                     disabled={isSubmitting || !commentContent.trim()}
-                    className={`ml-2 text-blue-500 font-semibold text-sm ${
-                      isSubmitting || !commentContent.trim() ? 'opacity-50' : 'hover:text-blue-700'
-                    }`}
                   >
-                    {isSubmitting ? 'Posting...' : 'Post'}
+                    {isSubmitting ? 'Posting...' : 'Post Comment'}
                   </button>
-                </div>
-              </form>
+                </form>
+              </StyledCommentForm>
             </div>
           )}
         </div>
@@ -295,5 +294,89 @@ const PostCard = ({ post, user, refreshPosts }) => {
     </div>
   );
 };
+
+const StyledCommentForm = styled.div`
+  margin-top: 16px;
+  background: linear-gradient(#212121, #212121) padding-box,
+              linear-gradient(145deg, transparent 35%,#e81cff, #40c9ff) border-box;
+  border: 2px solid transparent;
+  padding: 16px;
+  font-size: 14px;
+  font-family: inherit;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
+  border-radius: 12px;
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 4px;
+    color: #717171;
+    font-weight: 600;
+    font-size: 12px;
+  }
+
+  .form-group textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 6px;
+    resize: none;
+    color: #fff;
+    border: 1px solid #414141;
+    background-color: transparent;
+    font-family: inherit;
+    min-height: 80px;
+  }
+
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #e81cff;
+  }
+
+  .form-submit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    color: #717171;
+    font-weight: 600;
+    background: #313131;
+    border: 1px solid #414141;
+    padding: 8px 16px;
+    font-size: 14px;
+    gap: 8px;
+    cursor: pointer;
+    border-radius: 6px;
+    align-self: flex-start;
+  }
+
+  .form-submit-btn:hover {
+    background-color: #fff;
+    border-color: #fff;
+  }
+
+  .form-submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .form-submit-btn:active {
+    scale: 0.95;
+  }
+`;
 
 export default PostCard;
