@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "./App.css";
 import LearningPlans from "./components/LearningPlansSection/LearningPlan";
@@ -23,6 +23,32 @@ function App() {
   const [posts, setPosts] = useState([]);
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
   const navigate = useNavigate();
+
+  // Fetch posts based on current section
+  const fetchPosts = useCallback(async () => {
+    setIsLoadingPosts(true);
+    try {
+      let response;
+      if (currentSection === "home") {
+        response = await getPosts();
+      } else if (currentSection === "explore") {
+        response = await getFollowingPosts();
+      }
+
+      // Ensure posts have proper media URLs
+      const postsWithMedia = response.data.map((post) => ({
+        ...post,
+        imageUrls: post.imageIds?.map((id) => `/posts/media/${id}`) || [],
+        videoUrl: post.videoId ? `/posts/media/${post.videoId}` : null,
+      }));
+
+      setPosts(postsWithMedia);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    } finally {
+      setIsLoadingPosts(false);
+    }
+  }, [currentSection]);
 
   // Fetch user profile and posts when authenticated
   useEffect(() => {
@@ -51,31 +77,6 @@ function App() {
       setUser(null);
     }
 
-    const fetchPosts = async () => {
-      setIsLoadingPosts(true);
-      try {
-        let response;
-        if (currentSection === "home") {
-          response = await getPosts();
-        } else if (currentSection === "explore") {
-          response = await getFollowingPosts();
-        }
-        
-        // Ensure posts have proper media URLs
-        const postsWithMedia = response.data.map(post => ({
-          ...post,
-          imageUrls: post.imageIds?.map(id => `/posts/media/${id}`) || [],
-          videoUrl: post.videoId ? `/posts/media/${post.videoId}` : null
-        }));
-        
-        setPosts(postsWithMedia);
-      } catch (error) {
-        console.error("Error fetching posts:", error);
-      } finally {
-        setIsLoadingPosts(false);
-      }
-    };
-
     // Listen for profile updates from ProfileSection
     const handleProfileUpdated = (e) => {
       setUser(e.detail);
@@ -84,7 +85,7 @@ function App() {
     return () => {
       window.removeEventListener("profileUpdated", handleProfileUpdated);
     };
-  }, []);
+  }, [fetchPosts]);
 
   // Google OAuth: read token from URL and store it
   useEffect(() => {
@@ -97,31 +98,13 @@ function App() {
     }
   }, []);
 
-  // Fetch posts based on current section
-  const fetchPosts = async () => {
-    setIsLoadingPosts(true);
-    try {
-      let response;
-      if (currentSection === "home") {
-        response = await getPosts();
-      } else if (currentSection === "explore") {
-        response = await getFollowingPosts();
-      }
-      setPosts(response.data);
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-    } finally {
-      setIsLoadingPosts(false);
-    }
-  };
-
   // Update session on login/signup
   const afterAuth = (token) => {
     localStorage.setItem("token", token);
     return fetch("http://localhost:4043/api/users/me", {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then((res) => res.ok ? res.json() : null)
+      .then((res) => (res.ok ? res.json() : null))
       .then((userData) => {
         setUser(userData);
         setIsAuthenticated(true);
@@ -165,67 +148,84 @@ function App() {
   };
 
   const handleGoogleSignup = async () => {
-    const clientId = "715372036340-e4j5nagbqers9ocutat52l568cqt05vu.apps.googleusercontent.com";
+    const clientId =
+      "715372036340-e4j5nagbqers9ocutat52l568cqt05vu.apps.googleusercontent.com";
     const redirectUri = window.location.origin + "/google-oauth-callback.html";
     const scope = "email profile openid";
     const state = Math.random().toString(36).substring(2);
-    const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${encodeURIComponent(scope)}&state=${state}`;
+    const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(
+      redirectUri
+    )}&response_type=token&scope=${encodeURIComponent(scope)}&state=${state}`;
     window.open(
       oauthUrl,
       "GoogleSignUp",
       "width=500,height=600,left=200,top=100,status=no,scrollbars=yes,resizable=yes"
     );
-    window.addEventListener("message", async (event) => {
-      if (event.origin !== window.location.origin) return;
-      if (event.data.type === "google-oauth-token" && event.data.token) {
-        try {
-          const res = await fetch("http://localhost:4043/api/auth/google-signup", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ credential: event.data.token })
-          });
-          if (!res.ok) throw new Error("Google signup failed");
-          const data = await res.json();
-          await afterAuth(data.token);
-          setShowSignup(false);
-          navigate("/");
-        } catch (err) {
-          alert("Google signup failed: " + err.message);
+    window.addEventListener(
+      "message",
+      async (event) => {
+        if (event.origin !== window.location.origin) return;
+        if (event.data.type === "google-oauth-token" && event.data.token) {
+          try {
+            const res = await fetch(
+              "http://localhost:4043/api/auth/google-signup",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ credential: event.data.token }),
+              }
+            );
+            if (!res.ok) throw new Error("Google signup failed");
+            const data = await res.json();
+            await afterAuth(data.token);
+            setShowSignup(false);
+            navigate("/");
+          } catch (err) {
+            alert("Google signup failed: " + err.message);
+          }
         }
-      }
-    }, { once: true });
+      },
+      { once: true }
+    );
   };
 
   const handleGoogleLogin = async () => {
-    const clientId = "715372036340-e4j5nagbqers9ocutat52l568cqt05vu.apps.googleusercontent.com";
+    const clientId =
+      "715372036340-e4j5nagbqers9ocutat52l568cqt05vu.apps.googleusercontent.com";
     const redirectUri = window.location.origin + "/google-oauth-callback.html";
     const scope = "email profile openid";
     const state = Math.random().toString(36).substring(2);
-    const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${encodeURIComponent(scope)}&state=${state}`;
+    const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(
+      redirectUri
+    )}&response_type=token&scope=${encodeURIComponent(scope)}&state=${state}`;
     window.open(
       oauthUrl,
       "GoogleLogin",
       "width=500,height=600,left=200,top=100,status=no,scrollbars=yes,resizable=yes"
     );
-    window.addEventListener("message", async (event) => {
-      if (event.origin !== window.location.origin) return;
-      if (event.data.type === "google-oauth-token" && event.data.token) {
-        try {
-          const res = await fetch("http://localhost:4043/api/auth/google", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ credential: event.data.token })
-          });
-          if (!res.ok) throw new Error("Google login failed");
-          const data = await res.json();
-          await afterAuth(data.token);
-          setShowSignup(false);
-          navigate("/");
-        } catch (err) {
-          alert("Google login failed: " + err.message);
+    window.addEventListener(
+      "message",
+      async (event) => {
+        if (event.origin !== window.location.origin) return;
+        if (event.data.type === "google-oauth-token" && event.data.token) {
+          try {
+            const res = await fetch("http://localhost:4043/api/auth/google", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ credential: event.data.token }),
+            });
+            if (!res.ok) throw new Error("Google login failed");
+            const data = await res.json();
+            await afterAuth(data.token);
+            setShowSignup(false);
+            navigate("/");
+          } catch (err) {
+            alert("Google login failed: " + err.message);
+          }
         }
-      }
-    }, { once: true });
+      },
+      { once: true }
+    );
   };
 
   const handleLogout = () => {
@@ -238,29 +238,44 @@ function App() {
 
   // Refresh posts when section changes
   useEffect(() => {
-    if (isAuthenticated && (currentSection === "home" || currentSection === "explore")) {
+    if (
+      isAuthenticated &&
+      (currentSection === "home" || currentSection === "explore")
+    ) {
       fetchPosts();
     }
-  }, [currentSection, isAuthenticated]);
+  }, [currentSection, isAuthenticated, fetchPosts]);
 
   // Show signup page if not authenticated and showSignup is true
   if (!isAuthenticated && showSignup) {
-    return <SignupPage onSignup={handleSignup} onGoogleSignup={handleGoogleSignup} onLogin={() => setShowSignup(false)} />;
+    return (
+      <SignupPage
+        onSignup={handleSignup}
+        onGoogleSignup={handleGoogleSignup}
+        onLogin={() => setShowSignup(false)}
+      />
+    );
   }
   // Show login page if not authenticated and showSignup is false
   if (!isAuthenticated && !showSignup) {
-    return <LoginPage onLogin={handleLogin} onGoogleLogin={handleGoogleLogin} onShowSignup={() => setShowSignup(true)} />;
+    return (
+      <LoginPage
+        onLogin={handleLogin}
+        onGoogleLogin={handleGoogleLogin}
+        onShowSignup={() => setShowSignup(true)}
+      />
+    );
   }
 
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Left side: Navigation area */}
       <div className="w-1/4 p-5">
-        <Navigation 
-          user={user} 
-          setCurrentSection={setCurrentSection} 
-          currentSection={currentSection} 
-          onLogout={handleLogout} 
+        <Navigation
+          user={user}
+          setCurrentSection={setCurrentSection}
+          currentSection={currentSection}
+          onLogout={handleLogout}
         />
       </div>
 
@@ -275,12 +290,12 @@ function App() {
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
               </div>
             ) : (
-              posts.map(post => (
-                <PostCard 
-                      key={post.id} 
-                      post={post} 
-                      user={user} 
-                      refreshPosts={fetchPosts} 
+              posts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  user={user}
+                  refreshPosts={fetchPosts}
                 />
               ))
             )}
@@ -299,12 +314,12 @@ function App() {
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
               </div>
             ) : (
-              posts.map(post => (
-                <PostCard 
-                  key={post.id} 
-                  post={post} 
-                  user={user} 
-                  refreshPosts={fetchPosts} 
+              posts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  user={user}
+                  refreshPosts={fetchPosts}
                 />
               ))
             )}

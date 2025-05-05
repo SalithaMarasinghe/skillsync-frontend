@@ -9,14 +9,13 @@ import {
   Share,
   Edit,
   MoreVert,
-  Close
 } from "@mui/icons-material";
 import {
   likePost,
   unlikePost,
   deletePost,
   addComment,
-  updatePost
+  updatePost,
 } from "../../api";
 import { useNavigate } from "react-router-dom";
 import { IconButton, Menu, MenuItem, TextField } from "@mui/material";
@@ -87,7 +86,7 @@ const PostCard = ({ post, user, refreshPosts }) => {
   const handleAddComment = async (e) => {
     e.preventDefault();
     if (!commentContent.trim()) return;
-    
+
     setIsSubmitting(true);
     try {
       await addComment(post.id, commentContent);
@@ -103,8 +102,8 @@ const PostCard = ({ post, user, refreshPosts }) => {
   return (
     <div className="border-b border-gray-200 p-4 hover:bg-gray-50 transition-colors">
       <div className="flex space-x-3">
-        <Avatar 
-          src={post.user?.photo || "https://via.placeholder.com/150"} 
+        <Avatar
+          src={post.user?.photo || "https://via.placeholder.com/150"}
           alt={post.user?.name}
           onClick={() => navigate(`/profile/${post.userId}`)}
           className="cursor-pointer hover:opacity-80"
@@ -117,14 +116,14 @@ const PostCard = ({ post, user, refreshPosts }) => {
                 {post.user?.name}
               </span>
               <span className="text-gray-500 text-sm">
-                @{post.user?.email.split('@')[0]}
+                @{post.user?.email.split("@")[0]}
               </span>
               <span className="text-gray-500 text-sm">•</span>
               <span className="text-gray-500 text-sm">
                 {new Date(post.createdAt).toLocaleString()}
               </span>
             </div>
-            
+
             {user?.id === post.userId && (
               <>
                 <IconButton onClick={handleMenuOpen} size="small">
@@ -135,11 +134,13 @@ const PostCard = ({ post, user, refreshPosts }) => {
                   open={Boolean(anchorEl)}
                   onClose={handleMenuClose}
                 >
-                  <MenuItem onClick={() => {
-                    setIsEditing(true);
-                    setEditedContent(post.content);
-                    handleMenuClose();
-                  }}>
+                  <MenuItem
+                    onClick={() => {
+                      setIsEditing(true);
+                      setEditedContent(post.content);
+                      handleMenuClose();
+                    }}
+                  >
                     <Edit fontSize="small" className="mr-2" />
                     Edit Post
                   </MenuItem>
@@ -175,26 +176,29 @@ const PostCard = ({ post, user, refreshPosts }) => {
                   onClick={handleEditPost}
                   disabled={isSubmitting || !editedContent.trim()}
                 >
-                  {isSubmitting ? 'Saving...' : 'Save'}
+                  {isSubmitting ? "Saving..." : "Save"}
                 </Button>
               </div>
             </div>
           ) : (
             <p className="mt-1 mb-2 text-gray-800">{post.content}</p>
           )}
-          
+
           {post.imageUrls?.length > 0 && (
-            <div className={`grid gap-2 mb-3 ${
-              post.imageUrls.length === 1 ? 'grid-cols-1' : 'grid-cols-2'
-            }`}>
+            <div
+              className={`grid gap-2 mb-3 ${
+                post.imageUrls.length === 1 ? "grid-cols-1" : "grid-cols-2"
+              }`}
+            >
               {post.imageUrls.map((url, index) => (
                 <div key={index} className="relative group">
-                  <img 
+                  <img
                     src={`http://localhost:4043${url}`}
-                    alt={`Post ${post.id} image ${index}`}
+                    alt={`Post ${post.id}`}
                     className="rounded-lg object-cover w-full h-48 hover:opacity-90 transition-opacity"
                     onError={(e) => {
-                      e.target.src = "https://via.placeholder.com/500x300?text=Image+Not+Available";
+                      e.target.src =
+                        "https://via.placeholder.com/500x300?text=Image+Not+Available";
                     }}
                   />
                 </div>
@@ -204,20 +208,21 @@ const PostCard = ({ post, user, refreshPosts }) => {
 
           {post.videoUrl && (
             <div className="mb-3">
-              <video 
+              <video
                 src={`http://localhost:4043${post.videoUrl}`}
-                controls 
+                controls
                 className="rounded-lg w-full"
                 onError={(e) => {
-                  e.target.src = "https://via.placeholder.com/500x300?text=Video+Not+Available";
+                  e.target.src =
+                    "https://via.placeholder.com/500x300?text=Video+Not+Available";
                 }}
               />
             </div>
           )}
-          
+
           {/* Post actions */}
           <div className="flex justify-between mt-3 text-gray-500">
-            <button 
+            <button
               className="flex items-center space-x-1 hover:text-blue-500"
               onClick={() => setShowComments(!showComments)}
             >
@@ -227,7 +232,7 @@ const PostCard = ({ post, user, refreshPosts }) => {
             <button className="flex items-center space-x-1 hover:text-green-500">
               <Repeat fontSize="small" />
             </button>
-            <button 
+            <button
               className="flex items-center space-x-1 hover:text-red-500"
               onClick={handleLike}
             >
@@ -242,34 +247,38 @@ const PostCard = ({ post, user, refreshPosts }) => {
               <Share fontSize="small" />
             </button>
           </div>
-          
+
           {/* Comments section */}
           {showComments && (
             <div className="mt-3 space-y-3">
               {post.comments?.map((comment, index) => (
                 <div key={index} className="flex space-x-2">
-                  <Avatar 
-                    src={comment.user?.photo || "https://via.placeholder.com/150"} 
+                  <Avatar
+                    src={
+                      comment.user?.photo || "https://via.placeholder.com/150"
+                    }
                     sx={{ width: 32, height: 32 }}
                   />
                   <div className="flex-1">
                     <div className="flex items-center space-x-1">
-                      <span className="font-semibold text-sm">{comment.user?.name}</span>
+                      <span className="font-semibold text-sm">
+                        {comment.user?.name}
+                      </span>
                       <span className="text-gray-500 text-xs">
-                        @{comment.user?.email.split('@')[0]}
+                        @{comment.user?.email.split("@")[0]}
                       </span>
                     </div>
                     <p className="text-sm">{comment.content}</p>
                   </div>
                 </div>
               ))}
-              
+
               {/* Styled comment form */}
               <StyledCommentForm>
                 <form onSubmit={handleAddComment} className="form">
                   <div className="form-group">
                     <label htmlFor="comment">Add a comment</label>
-                    <textarea 
+                    <textarea
                       id="comment"
                       name="comment"
                       value={commentContent}
@@ -278,12 +287,12 @@ const PostCard = ({ post, user, refreshPosts }) => {
                       required
                     />
                   </div>
-                  <button 
+                  <button
                     type="submit"
                     className="form-submit-btn"
                     disabled={isSubmitting || !commentContent.trim()}
                   >
-                    {isSubmitting ? 'Posting...' : 'Post Comment'}
+                    {isSubmitting ? "Posting..." : "Post Comment"}
                   </button>
                 </form>
               </StyledCommentForm>
@@ -298,7 +307,7 @@ const PostCard = ({ post, user, refreshPosts }) => {
 const StyledCommentForm = styled.div`
   margin-top: 16px;
   background: linear-gradient(#212121, #212121) padding-box,
-              linear-gradient(145deg, transparent 35%,#e81cff, #40c9ff) border-box;
+    linear-gradient(145deg, transparent 35%, #e81cff, #40c9ff) border-box;
   border: 2px solid transparent;
   padding: 16px;
   font-size: 14px;
