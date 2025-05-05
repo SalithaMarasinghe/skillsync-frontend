@@ -79,8 +79,6 @@ const LearningPlans = () => {
       console.error("Error fetching learning plans:", err);
       if (err.response?.status === 401) {
         setError("Your session has expired. Please log in again.");
-        // Optionally redirect to login page
-        // window.location.href = '/login';
       } else {
         setError(
           err.response?.data?.message ||
