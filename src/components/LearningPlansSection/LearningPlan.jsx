@@ -10,7 +10,9 @@ const LearningPlanCard = ({ plan, onEdit, onDelete }) => (
       <strong className="text-gray-800">Topics:</strong>
       <ul className="list-disc list-inside ml-4">
         {(plan.topics || []).map((topic, idx) => (
-          <li key={idx} className="text-gray-600">{topic}</li>
+          <li key={idx} className="text-gray-600">
+            {topic}
+          </li>
         ))}
       </ul>
     </div>
@@ -18,7 +20,9 @@ const LearningPlanCard = ({ plan, onEdit, onDelete }) => (
       <strong className="text-gray-800">Resources:</strong>
       <ul className="list-disc list-inside ml-4">
         {(plan.resources || []).map((resource, idx) => (
-          <li key={idx} className="text-gray-600">{resource}</li>
+          <li key={idx} className="text-gray-600">
+            {resource}
+          </li>
         ))}
       </ul>
     </div>
@@ -26,11 +30,15 @@ const LearningPlanCard = ({ plan, onEdit, onDelete }) => (
       <button
         className="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-4 rounded"
         onClick={onEdit}
-      >Edit</button>
+      >
+        Edit
+      </button>
       <button
         className="bg-red-500 hover:bg-red-600 text-white py-1 px-4 rounded"
         onClick={onDelete}
-      >Delete</button>
+      >
+        Delete
+      </button>
     </div>
   </div>
 );
@@ -50,8 +58,8 @@ const LearningPlans = () => {
   const fetchLearningPlans = () => {
     fetch("http://localhost:4043/api/learningplans/my", {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`
-      }
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
     })
       .then((res) => res.json())
       .then((data) => setLearningPlans(data))
@@ -75,15 +83,24 @@ const LearningPlans = () => {
       const plan = {
         name: values.name,
         description: values.description,
-        topics: values.topics.split(",").map((t) => t.trim()).filter(Boolean),
-        resources: values.resources.split(",").map((r) => r.trim()).filter(Boolean),
+        topics: values.topics
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean),
+        resources: values.resources
+          .split(",")
+          .map((r) => r.trim())
+          .filter(Boolean),
       };
       if (editIndex !== null) {
         // Update
         const planId = learningPlans[editIndex].id;
         fetch(`http://localhost:4043/api/learningplans/${planId}`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
           body: JSON.stringify(plan),
         })
           .then((res) => {
@@ -102,7 +119,7 @@ const LearningPlans = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify(plan),
         })
@@ -132,9 +149,13 @@ const LearningPlans = () => {
 
   const handleDelete = (index) => {
     const planId = learningPlans[index].id;
-    if (!window.confirm("Are you sure you want to delete this learning plan?")) return;
+    if (!window.confirm("Are you sure you want to delete this learning plan?"))
+      return;
     fetch(`http://localhost:4043/api/learningplans/${planId}`, {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
     })
       .then((res) => {
         if (!res.ok) throw new Error("Delete failed");
@@ -149,10 +170,19 @@ const LearningPlans = () => {
 
   return (
     <div className="learning-plans-container bg-gray-50 min-h-screen py-8">
-      <form className="bg-white max-w-xl mx-auto rounded-lg shadow-md p-6 mb-8 border border-blue-200" onSubmit={formik.handleSubmit}>
-        <h2 className="text-xl font-semibold mb-4 text-blue-700">{editIndex !== null ? 'Edit Learning Plan' : 'Create a New Learning Plan'}</h2>
+      <form
+        className="bg-white max-w-xl mx-auto rounded-lg shadow-md p-6 mb-8 border border-blue-200"
+        onSubmit={formik.handleSubmit}
+      >
+        <h2 className="text-xl font-semibold mb-4 text-blue-700">
+          {editIndex !== null
+            ? "Edit Learning Plan"
+            : "Create a New Learning Plan"}
+        </h2>
         <div className="mb-4">
-          <label className="block mb-1 font-medium" htmlFor="name">Name</label>
+          <label className="block mb-1 font-medium" htmlFor="name">
+            Name
+          </label>
           <input
             id="name"
             name="name"
@@ -163,11 +193,15 @@ const LearningPlans = () => {
             value={formik.values.name}
           />
           {formik.touched.name && formik.errors.name && (
-            <div className="text-red-500 text-sm mt-1">{formik.errors.name}</div>
+            <div className="text-red-500 text-sm mt-1">
+              {formik.errors.name}
+            </div>
           )}
         </div>
         <div className="mb-4">
-          <label className="block mb-1 font-medium" htmlFor="description">Description</label>
+          <label className="block mb-1 font-medium" htmlFor="description">
+            Description
+          </label>
           <textarea
             id="description"
             name="description"
@@ -177,11 +211,16 @@ const LearningPlans = () => {
             value={formik.values.description}
           />
           {formik.touched.description && formik.errors.description && (
-            <div className="text-red-500 text-sm mt-1">{formik.errors.description}</div>
+            <div className="text-red-500 text-sm mt-1">
+              {formik.errors.description}
+            </div>
           )}
         </div>
         <div className="mb-4">
-          <label className="block mb-1 font-medium" htmlFor="topics">Topics <span className="text-xs text-gray-500">(comma separated)</span></label>
+          <label className="block mb-1 font-medium" htmlFor="topics">
+            Topics{" "}
+            <span className="text-xs text-gray-500">(comma separated)</span>
+          </label>
           <input
             id="topics"
             name="topics"
@@ -192,11 +231,16 @@ const LearningPlans = () => {
             value={formik.values.topics}
           />
           {formik.touched.topics && formik.errors.topics && (
-            <div className="text-red-500 text-sm mt-1">{formik.errors.topics}</div>
+            <div className="text-red-500 text-sm mt-1">
+              {formik.errors.topics}
+            </div>
           )}
         </div>
         <div className="mb-6">
-          <label className="block mb-1 font-medium" htmlFor="resources">Resources <span className="text-xs text-gray-500">(comma separated)</span></label>
+          <label className="block mb-1 font-medium" htmlFor="resources">
+            Resources{" "}
+            <span className="text-xs text-gray-500">(comma separated)</span>
+          </label>
           <input
             id="resources"
             name="resources"
@@ -207,7 +251,9 @@ const LearningPlans = () => {
             value={formik.values.resources}
           />
           {formik.touched.resources && formik.errors.resources && (
-            <div className="text-red-500 text-sm mt-1">{formik.errors.resources}</div>
+            <div className="text-red-500 text-sm mt-1">
+              {formik.errors.resources}
+            </div>
           )}
         </div>
         <div className="flex space-x-2">
@@ -215,13 +261,16 @@ const LearningPlans = () => {
             type="submit"
             className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition font-semibold"
           >
-            {editIndex !== null ? 'Update Learning Plan' : 'Add Learning Plan'}
+            {editIndex !== null ? "Update Learning Plan" : "Add Learning Plan"}
           </button>
           {editIndex !== null && (
             <button
               type="button"
               className="w-full bg-gray-400 text-white py-2 px-4 rounded hover:bg-gray-500 transition font-semibold"
-              onClick={() => { setEditIndex(null); formik.resetForm(); }}
+              onClick={() => {
+                setEditIndex(null);
+                formik.resetForm();
+              }}
             >
               Cancel
             </button>
