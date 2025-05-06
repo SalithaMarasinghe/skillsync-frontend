@@ -26,6 +26,8 @@ function App() {
 
   // Fetch posts based on current section
   const fetchPosts = useCallback(async () => {
+    if (!isAuthenticated) return;
+
     setIsLoadingPosts(true);
     try {
       let response;
@@ -48,7 +50,7 @@ function App() {
     } finally {
       setIsLoadingPosts(false);
     }
-  }, [currentSection]);
+  }, [currentSection, isAuthenticated]);
 
   // Fetch user profile and posts when authenticated
   useEffect(() => {
@@ -238,13 +240,10 @@ function App() {
 
   // Refresh posts when section changes
   useEffect(() => {
-    if (
-      isAuthenticated &&
-      (currentSection === "home" || currentSection === "explore")
-    ) {
+    if (currentSection === "home" || currentSection === "explore") {
       fetchPosts();
     }
-  }, [currentSection, isAuthenticated, fetchPosts]);
+  }, [currentSection, fetchPosts]);
 
   // Show signup page if not authenticated and showSignup is true
   if (!isAuthenticated && showSignup) {
