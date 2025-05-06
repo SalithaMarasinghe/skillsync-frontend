@@ -26,7 +26,7 @@ export const NavigationMenu = [
   // Removed Messages section
   // {
   //   title: "Messages",
-  //   icon: <MessageIcon />, 
+  //   icon: <MessageIcon />,
   //   path: "/messages",
   // },
   {
@@ -37,7 +37,7 @@ export const NavigationMenu = [
   {
     title: "Learning Progress",
     icon: <GroupIcon />,
-    path: "/learningProgress",
+    path: "/learning-progress",
   },
   {
     title: "Profile",

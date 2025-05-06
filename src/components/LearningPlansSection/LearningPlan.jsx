@@ -62,7 +62,16 @@ const LearningPlans = () => {
       },
     })
       .then((res) => res.json())
-      .then((data) => setLearningPlans(data))
+      .then((data) => {
+        // HATEOAS: extract array from _embedded if present
+        let plans = [];
+        if (data && data._embedded && data._embedded.learningPlanList) {
+          plans = data._embedded.learningPlanList;
+        } else if (Array.isArray(data)) {
+          plans = data;
+        }
+        setLearningPlans(plans);
+      })
       .catch((err) => console.error("Error fetching learning plans:", err));
   };
 
@@ -277,7 +286,7 @@ const LearningPlans = () => {
           )}
         </div>
       </form>
-      {learningPlans.map((plan, index) => (
+      {Array.isArray(learningPlans) && learningPlans.map((plan, index) => (
         <LearningPlanCard
           key={plan.id}
           plan={plan}
