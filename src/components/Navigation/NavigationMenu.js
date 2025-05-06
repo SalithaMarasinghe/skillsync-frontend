@@ -37,7 +37,7 @@ export const NavigationMenu = [
   {
     title: "Learning Progress",
     icon: <GroupIcon />,
-    path: "/learningProgress",
+    path: "/learning-progress",
   },
   {
     title: "Profile",
