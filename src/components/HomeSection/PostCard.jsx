@@ -14,11 +14,16 @@ import {
   likePost,
   unlikePost,
   deletePost,
+
   addComment,
   updatePost,
+
+  updatePost
+
 } from "../../api";
 import { useNavigate } from "react-router-dom";
 import { IconButton, Menu, MenuItem, TextField } from "@mui/material";
+import CommentModal from "./CommentModal";
 
 const PostCard = ({ post, user, refreshPosts }) => {
   const [isLiked, setIsLiked] = useState(post.likedBy.includes(user?.id));
@@ -29,6 +34,7 @@ const PostCard = ({ post, user, refreshPosts }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(post.content);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [openCommentModal, setOpenCommentModal] = useState(false);
   const navigate = useNavigate();
 
   const handleMenuOpen = (event) => {
@@ -82,20 +88,14 @@ const PostCard = ({ post, user, refreshPosts }) => {
     }
   };
 
-  const handleAddComment = async (e) => {
-    e.preventDefault();
-    if (!commentContent.trim()) return;
+ 
+  const handleCommentModalOpen = () => {
+    setOpenCommentModal(true);
+  };
 
-    setIsSubmitting(true);
-    try {
-      await addComment(post.id, commentContent);
-      setCommentContent("");
-      refreshPosts();
-    } catch (error) {
-      console.error("Error adding comment:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleCommentModalClose = () => {
+    setOpenCommentModal(false);
+
   };
 
   return (
@@ -221,14 +221,16 @@ const PostCard = ({ post, user, refreshPosts }) => {
 
           {/* Post actions */}
           <div className="flex justify-between mt-3 text-gray-500">
-            <button
-              className="flex items-center space-x-1 hover:text-blue-500"
-              onClick={() => setShowComments(!showComments)}
-            >
-              <ChatBubbleOutline fontSize="small" />
-              <span>{post.comments?.length || 0}</span>
-            </button>
-            <button className="flex items-center space-x-1 hover:text-green-500">
+
+        <button 
+          className="flex items-center space-x-1 hover:text-blue-500"
+          onClick={handleCommentModalOpen} // Changed to open modal
+        >
+          <ChatBubbleOutline fontSize="small" />
+          <span>{post.comments?.length || 0}</span>
+        </button>
+        <button className="flex items-center space-x-1 hover:text-green-500">
+
               <Repeat fontSize="small" />
             </button>
             <button
@@ -247,60 +249,21 @@ const PostCard = ({ post, user, refreshPosts }) => {
             </button>
           </div>
 
-          {/* Comments section */}
-          {showComments && (
-            <div className="mt-3 space-y-3">
-              {post.comments?.map((comment, index) => (
-                <div key={index} className="flex space-x-2">
-                  <Avatar
-                    src={
-                      comment.user?.photo || "https://via.placeholder.com/150"
-                    }
-                    sx={{ width: 32, height: 32 }}
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-1">
-                      <span className="font-semibold text-sm">
-                        {comment.user?.name}
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        @{comment.user?.email.split("@")[0]}
-                      </span>
-                    </div>
-                    <p className="text-sm">{comment.content}</p>
-                  </div>
-                </div>
-              ))}
+          
+          {/* Render your CommentModal */}
+      <CommentModal 
+        open={openCommentModal} 
+        handleClose={handleCommentModalClose}
+        // Pass any additional props your modal needs
+        post={post}
+        user={user}
+        onCommentSubmit={(comment) => {
+          // Handle comment submission if needed
+          setCommentContent("");
+          refreshPosts();
+        }}
+      />
 
-              {/* Add comment form */}
-              <form onSubmit={handleAddComment} className="flex space-x-2 mt-2">
-                <Avatar
-                  src={user?.photo || "https://via.placeholder.com/150"}
-                  sx={{ width: 32, height: 32 }}
-                />
-                <div className="flex-1 flex items-center">
-                  <input
-                    type="text"
-                    value={commentContent}
-                    onChange={(e) => setCommentContent(e.target.value)}
-                    placeholder="Add a comment..."
-                    className="flex-1 border rounded-full px-3 py-1 text-sm bg-gray-100 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                  <button
-                    type="submit"
-                    disabled={isSubmitting || !commentContent.trim()}
-                    className={`ml-2 text-blue-500 font-semibold text-sm ${
-                      isSubmitting || !commentContent.trim()
-                        ? "opacity-50"
-                        : "hover:text-blue-700"
-                    }`}
-                  >
-                    {isSubmitting ? "Posting..." : "Post"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
         </div>
       </div>
     </div>
