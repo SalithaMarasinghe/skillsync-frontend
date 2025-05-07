@@ -14,7 +14,8 @@ import {
   likePost,
   unlikePost,
   deletePost,
-  updatePost
+  updatePost,
+
 } from "../../api";
 import { useNavigate } from "react-router-dom";
 import { IconButton, Menu, MenuItem, TextField } from "@mui/material";
@@ -83,6 +84,7 @@ const PostCard = ({ post, user, refreshPosts }) => {
     }
   };
 
+
  
 
   const handleCommentModalOpen = () => {
@@ -91,13 +93,14 @@ const PostCard = ({ post, user, refreshPosts }) => {
 
   const handleCommentModalClose = () => {
     setOpenCommentModal(false);
+
   };
 
   return (
     <div className="border-b border-gray-200 p-4 hover:bg-gray-50 transition-colors">
       <div className="flex space-x-3">
-        <Avatar 
-          src={post.user?.photo || "https://via.placeholder.com/150"} 
+        <Avatar
+          src={post.user?.photo || "https://via.placeholder.com/150"}
           alt={post.user?.name}
           onClick={() => navigate(`/profile/${post.userId}`)}
           className="cursor-pointer hover:opacity-80"
@@ -107,17 +110,17 @@ const PostCard = ({ post, user, refreshPosts }) => {
           <div className="flex justify-between items-start">
             <div className="flex items-center space-x-1">
               <span className="font-bold hover:underline cursor-pointer">
-                {post.user?.name}
+                {post.user?.name || post.userName || "Unknown User"}
               </span>
               <span className="text-gray-500 text-sm">
-                @{post.user?.email.split('@')[0]}
+                @{post.user?.email?.split("@")[0]}
               </span>
               <span className="text-gray-500 text-sm">•</span>
               <span className="text-gray-500 text-sm">
                 {new Date(post.createdAt).toLocaleString()}
               </span>
             </div>
-            
+
             {user?.id === post.userId && (
               <>
                 <IconButton onClick={handleMenuOpen} size="small">
@@ -128,11 +131,13 @@ const PostCard = ({ post, user, refreshPosts }) => {
                   open={Boolean(anchorEl)}
                   onClose={handleMenuClose}
                 >
-                  <MenuItem onClick={() => {
-                    setIsEditing(true);
-                    setEditedContent(post.content);
-                    handleMenuClose();
-                  }}>
+                  <MenuItem
+                    onClick={() => {
+                      setIsEditing(true);
+                      setEditedContent(post.content);
+                      handleMenuClose();
+                    }}
+                  >
                     <Edit fontSize="small" className="mr-2" />
                     Edit Post
                   </MenuItem>
@@ -168,48 +173,53 @@ const PostCard = ({ post, user, refreshPosts }) => {
                   onClick={handleEditPost}
                   disabled={isSubmitting || !editedContent.trim()}
                 >
-                  {isSubmitting ? 'Saving...' : 'Save'}
+                  {isSubmitting ? "Saving..." : "Save"}
                 </Button>
               </div>
             </div>
           ) : (
             <p className="mt-1 mb-2 text-gray-800">{post.content}</p>
           )}
-          
-            {post.imageUrls?.length > 0 && (
-              <div className={`grid gap-2 mb-3 ${
-                post.imageUrls.length === 1 ? 'grid-cols-1' : 'grid-cols-2'
-              }`}>
-                {post.imageUrls.map((url, index) => (
-                  <div key={index} className="relative group">
-                    <img 
-                      src={`http://localhost:4043${url}`} // Add the base URL
-                      alt={`Post ${post.id} image ${index}`}
-                      className="rounded-lg object-cover w-full h-48 hover:opacity-90 transition-opacity"
-                      onError={(e) => {
-                        e.target.src = "https://via.placeholder.com/500x300?text=Image+Not+Available";
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
 
-            {post.videoUrl && (
-              <div className="mb-3">
-                <video 
-                  src={`http://localhost:4043${post.videoUrl}`} // Add the base URL
-                  controls 
-                  className="rounded-lg w-full"
-                  onError={(e) => {
-                    e.target.src = "https://via.placeholder.com/500x300?text=Video+Not+Available";
-                  }}
-                />
-              </div>
-            )}
-          
+          {post.imageUrls?.length > 0 && (
+            <div
+              className={`grid gap-2 mb-3 ${
+                post.imageUrls.length === 1 ? "grid-cols-1" : "grid-cols-2"
+              }`}
+            >
+              {post.imageUrls.map((url, index) => (
+                <div key={index} className="relative group">
+                  <img
+                    src={`http://localhost:4043${url}`}
+                    alt={`Post ${post.id} image ${index}`}
+                    className="rounded-lg object-cover w-full h-48 hover:opacity-90 transition-opacity"
+                    onError={(e) => {
+                      e.target.src =
+                        "https://via.placeholder.com/500x300?text=Image+Not+Available";
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {post.videoUrl && (
+            <div className="mb-3">
+              <video
+                src={`http://localhost:4043${post.videoUrl}`}
+                controls
+                className="rounded-lg w-full"
+                onError={(e) => {
+                  e.target.src =
+                    "https://via.placeholder.com/500x300?text=Video+Not+Available";
+                }}
+              />
+            </div>
+          )}
+
           {/* Post actions */}
           <div className="flex justify-between mt-3 text-gray-500">
+
         <button 
           className="flex items-center space-x-1 hover:text-blue-500"
           onClick={handleCommentModalOpen} // Changed to open modal
@@ -218,9 +228,10 @@ const PostCard = ({ post, user, refreshPosts }) => {
           <span>{post.comments?.length || 0}</span>
         </button>
         <button className="flex items-center space-x-1 hover:text-green-500">
+
               <Repeat fontSize="small" />
             </button>
-            <button 
+            <button
               className="flex items-center space-x-1 hover:text-red-500"
               onClick={handleLike}
             >
@@ -235,6 +246,7 @@ const PostCard = ({ post, user, refreshPosts }) => {
               <Share fontSize="small" />
             </button>
           </div>
+
           
           {/* Render your CommentModal */}
       <CommentModal 
@@ -249,6 +261,8 @@ const PostCard = ({ post, user, refreshPosts }) => {
           refreshPosts();
         }}
       />
+
+         
         </div>
       </div>
     </div>
