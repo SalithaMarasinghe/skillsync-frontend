@@ -20,8 +20,8 @@ const HomeSection = ({ user, refreshPosts }) => {
   const handleSubmit = async (values) => {
     setIsSubmitting(true);
     try {
-      const images = selectedImages.map((img) => img.file);
-      await createPost(values.content, images, selectedVideo?.file);
+      const images = selectedImages.map(img => img.file);
+      const response = await createPost(values.content, images, selectedVideo?.file);
       formik.resetForm();
       setSelectedImages([]);
       setSelectedVideo(null);
@@ -33,6 +33,7 @@ const HomeSection = ({ user, refreshPosts }) => {
       setIsSubmitting(false);
     }
   };
+  
 
   const formik = useFormik({
     initialValues: {
@@ -44,9 +45,9 @@ const HomeSection = ({ user, refreshPosts }) => {
 
   const handleSelectImages = (event) => {
     const files = Array.from(event.target.files).slice(0, 3);
-    const newImages = files.map((file) => ({
+    const newImages = files.map(file => ({
       file,
-      preview: URL.createObjectURL(file),
+      preview: URL.createObjectURL(file)
     }));
     setSelectedImages(newImages);
     setSelectedVideo(null);
@@ -58,7 +59,7 @@ const HomeSection = ({ user, refreshPosts }) => {
     if (file) {
       setSelectedVideo({
         file,
-        preview: URL.createObjectURL(file),
+        preview: URL.createObjectURL(file)
       });
       setSelectedImages([]);
       event.target.value = null; // Reset input
@@ -76,7 +77,7 @@ const HomeSection = ({ user, refreshPosts }) => {
   };
 
   if (!user) {
-    navigate("/");
+    navigate('/');
     return null;
   }
 
@@ -188,14 +189,9 @@ const HomeSection = ({ user, refreshPosts }) => {
                         bgcolor: "#1565c0",
                       },
                     }}
-                    disabled={
-                      isSubmitting ||
-                      (!formik.values.content &&
-                        !selectedImages.length &&
-                        !selectedVideo)
-                    }
+                    disabled={isSubmitting || (!formik.values.content && !selectedImages.length && !selectedVideo)}
                   >
-                    {isSubmitting ? "Posting..." : "Post"}
+                    {isSubmitting ? 'Posting...' : 'Post'}
                   </Button>
                 </div>
               </div>
